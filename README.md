@@ -1,0 +1,1 @@
+Repositório destinado para formação em análise de dados. Conteúdo fornecido pela comunidade DS.
