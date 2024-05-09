@@ -1,0 +1,26 @@
+SELECT c.customer_id, c.customer_city, c.customer_state 
+FROM customer AS c;
+
+SELECT c.customer_id, c.customer_city 
+FROM customer AS c 
+WHERE c.customer_state  = 'SC';
+
+SELECT c.customer_id, c.customer_state 
+FROM customer AS c 
+WHERE c.customer_city = 'florianopolis';
+
+SELECT g.geolocation_state, g.geolocation_lat, g.geolocation_lng 
+FROM geolocation AS g 
+WHERE g.geolocation_state = 'SP';
+
+SELECT oi.order_id, oi.shipping_limit_date, oi.price 
+FROM order_items AS oi 
+WHERE oi.price > 6300;
+
+SELECT op.order_id, op.payment_type, op.payment_installments 
+FROM order_payments AS op 
+WHERE op.payment_installments < 1;
+
+SELECT o.order_id, o.customer_id, o.order_status, o.order_approved_at
+FROM orders AS o
+WHERE o.order_approved_at <= '2016-05-05 23:59:59';
