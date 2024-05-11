@@ -1,0 +1,51 @@
+-- Atividade aula05 ciclo02 sql do basico ao avançado
+
+/*1. Qual o número de clientes únicos do estado de São
+Paulo?
+*/
+
+SELECT COUNT (DISTINCT c.customer_id) AS qtd_clientes 
+FROM customer c 
+WHERE c.customer_state = 'SP'
+
+
+-- 2. Qual o número total de pedidos únicos feitos no dia 08 de Outubro de 2016.
+
+SELECT COUNT (DISTINCT oi.order_id) AS qtd_pedidos
+FROM order_items oi
+WHERE DATE (oi.shipping_limit_date) = '2016-10-08' 
+
+-- 3. Qual o número total de pedidos únicos feitos depois do dia 08 de Outubro de 2016.
+
+SELECT COUNT (DISTINCT oi.order_id) AS qtd_pedidos 
+FROM order_items oi 
+WHERE DATE (oi.shipping_limit_date) > '2016-10-08'
+
+-- 4. Qual o número total de pedidos únicos feitos a partir do dia 08 de Outubro de 2016.
+
+SELECT COUNT (DISTINCT oi.order_id) AS qtd_pedidos 
+FROM order_items oi 
+WHERE DATE (oi.shipping_limit_date) >= '2016-10-08'
+
+-- 5. Qual o número total de pedidos únicos e o valor médio do frete dos pedidos abaixo de R$ 1.100?
+
+SELECT COUNT (DISTINCT oi.order_id) AS qtd_pedidos,
+	   AVG (oi.freight_value) AS valor_medio 
+FROM order_items oi 
+WHERE oi.price <1100
+
+/*6. Qual o número total de pedidos únicos, a data
+mínima e máxima de envio, o valor máximo, mínimo e
+médio do frete, dos pedidos abaixo de R$ 1.100 por cada
+vendedor?*/
+
+SELECT oi.seller_id,
+	   COUNT (DISTINCT oi.order_id) AS qtd_pedidos,
+	   MIN (oi.shipping_limit_date) AS data_minima,
+	   MAX (oi.shipping_limit_date) AS data_maxima,
+	   MAX (oi.freight_value) AS valor_maximo_frete,
+	   MIN (oi.freight_value) AS valor_minimo_frete,
+	   AVG (oi.freight_value) AS valor_medio_frete
+FROM order_items oi 
+WHERE oi.price < 1100
+GROUP BY oi.seller_id 

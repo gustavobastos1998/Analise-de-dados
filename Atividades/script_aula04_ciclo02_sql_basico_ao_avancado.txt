@@ -1,0 +1,129 @@
+-- Atividade aula04 ciclo02 sql basico ao avançado
+
+-- 1. Qual o número de clientes únicos de todos os estados?
+
+SELECT c.customer_state, COUNT(DISTINCT c.customer_id) AS numero_clientes
+FROM customer c 
+GROUP BY c.customer_state 
+
+-- 2. Qual o número de cidades únicas de todos os estados?
+
+SELECT g.geolocation_state, COUNT(DISTINCT g.geolocation_city) AS numero_cidades
+FROM geolocation g 
+GROUP BY g.geolocation_state 
+
+
+SELECT c.customer_state , COUNT(DISTINCT c.customer_city) AS numero_cidades
+FROM customer c 
+GROUP BY c.customer_state  
+
+-- 3. Qual o número de clientes únicos por estado e por cidade?
+
+SELECT c.customer_state, c.customer_city, COUNT(DISTINCT c.customer_id) AS numero_clientes
+FROM customer c 
+GROUP BY c.customer_state, c.customer_city 
+
+-- 4. Qual o número de clientes únicos por cidade e por estado?
+
+SELECT c.customer_city, c.customer_state, COUNT(DISTINCT c.customer_id) AS numero_clientes
+FROM customer c 
+GROUP BY c.customer_city, c.customer_state 
+
+-- 5. Qual o número total de pedidos únicos por cada vendedor?
+
+SELECT oi.seller_id, COUNT(DISTINCT oi.order_id) AS numero_de_pedidos 
+FROM order_items oi 
+GROUP BY oi.seller_id 
+
+/* 6. Qual o número total de pedidos únicos, a data
+mínima e máxima de envio, o valor máximo, mínimo e
+médio do frete dos pedidos por cada vendedor?*/
+
+SELECT oi.seller_id, 
+       COUNT (DISTINCT oi.order_id) AS numero_pedidos_unicos,
+       MAX (oi.shipping_limit_date) AS data_maxima,
+       MIN (oi.shipping_limit_date) AS data_minima,
+       MAX (oi.freight_value) AS frete_maximo,
+       MIN (oi.freight_value) AS frete_minimo,
+       AVG (oi.freight_value) AS frete_medio 
+FROM order_items oi 
+GROUP BY oi.seller_id 
+
+-- 7. Qual o valor médio, máximo e mínimo do preço de todos os pedidos de cada produto?
+
+SELECT oi.product_id, 
+	   AVG (oi.price) AS valor_preco_medio,
+	   MAX (oi.price) AS valor_preco_maximo,
+	   MIN (oi.price) AS valor_preco_minimo
+FROM order_items oi 
+GROUP BY oi.product_id 
+
+-- 8. Qual a quantidade de vendedores distintos que receberam algum pedido e o preço médio das vendas?
+
+SELECT oi.order_id, 
+	   COUNT (DISTINCT oi.seller_id) AS qtd_vendedores_distintos,
+	   AVG (oi.price) AS preco_medio 
+FROM order_items oi 
+
+-- 9. Qual a quantidade de pedidos por tipo de pagamentos?
+
+SELECT op.payment_type,
+	   COUNT (op.order_id) AS qtd_pedidos
+FROM order_payments op 
+GROUP BY op.payment_type 
+
+/*10. Qual a quantidade de pedidos, a média do valor do
+pagamento e o número máximo de parcelas por tipo de
+pagamentos?*/
+
+SELECT op.payment_type,
+	   COUNT (op.order_id) AS qtd_pedidos,
+	   AVG (op.payment_value) AS media_valor_pagamento, 
+	   MAX (op.payment_installments) AS parcelas_maxima 
+FROM order_payments op 
+GROUP BY op.payment_type 
+
+/* 11. Qual a valor mínimo, máximo, médio e as soma total
+paga por cada tipo de pagamento e número de parcelas
+disponíveis?
+*/
+
+SELECT op.payment_type,
+	   op.payment_installments,
+	   MIN (op.payment_value) AS valor_minimo,
+	   MAX (op.payment_value) AS valor_maximo,
+	   AVG (op.payment_value) AS valor_medio,
+	   SUM (op.payment_value) AS valor_soma 
+FROM order_payments op 
+GROUP BY op.payment_type , op.payment_installments 
+
+-- 12. Qual a média de pedidos por cliente?
+
+SELECT o.customer_id,
+	   AVG (o.order_id) AS media_pedidos 
+FROM orders o
+GROUP BY o.customer_id 
+
+-- 13. Qual a quantidade de pedidos por status?
+
+SELECT o.order_status,
+ 	   COUNT (o.order_id) AS qtd_pedidos 
+FROM orders o
+GROUP BY o.order_status 
+
+/* 14. Qual a quantidade de pedidos realizados por dia? **
+OBS: Use o comando DATE para converter de
+timestamp (data com hora) para apenas data!
+*/
+
+SELECT DATE (o.order_approved_at) AS dia_da_compra,
+	   COUNT (o.order_id) AS qtd_pedidos 
+FROM orders o
+GROUP BY DATE (o.order_approved_at) 
+
+-- 15. Quantos produtos estão cadastrados na empresa por categoria?
+
+SELECT p.product_category_name,
+	   COUNT (p.product_id) AS produto 
+FROM products p 
+GROUP BY p.product_category_name
