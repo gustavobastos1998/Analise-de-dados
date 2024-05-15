@@ -3,8 +3,7 @@
 ### *INNER JOIN*
 
 - Retorna somente as linhas que estão tanto na tabela da esquerda quanto na tabela da direita. 
-- Faz conexão de 1:1 entre as tabelas. Se o elemento da tabela da esquerda não tiver um correspondente na direita, ele não trás o resultado. Em outras palavras, o <mark style="background: #ABF7F7A6;">INNER JOIN</mark> conecta todas as linhas da tabela da esquerda com as respectivas linhas da tabela da direita. 
-- Caso a tabela da esquerda tenha 50 linhas e a da direita 70, o <mark style="background: #ABF7F7A6;">INNER JOIN</mark> conecta as 50 linhas da esquerda com as 50 primeiras linhas da direita. Caso a quantidade de linhas fossem trocadas, ele conectaria as 50 primeiras linhas da esquerda com as 50 linhas da direita.
+- Faz conexão de 1:1 entre as tabelas. Se o elemento da tabela da esquerda não tiver um correspondente na direita, ele não trás o resultado. 
 - Exemplo: ![[exemplo inner join.png]]
 - Na prática, outra palavra reservada pelo SQL é utilizada em conjunto com essas uniões sendo ela <mark style="background: #ABF7F7A6;">ON</mark>. Após ela, vem uma condicional informando quais linhas eu quero relacionar entre as tabelas. Importante ressaltar que essa conexão deve existir pela presença de chaves estrangeiras que interliguem as tabelas.
 
