@@ -5,7 +5,6 @@
 - Retorna somente as linhas que estão tanto na tabela da esquerda quanto na tabela da direita. 
 - Faz conexão de 1:1 entre as tabelas. Se o elemento da tabela da esquerda não tiver um correspondente na direita, ele não trás o resultado. 
 - Exemplo: ![[exemplo inner join.png]]
-- Na prática, outra palavra reservada pelo SQL é utilizada em conjunto com essas uniões sendo ela <mark style="background: #ABF7F7A6;">ON</mark>. Após ela, vem uma condicional informando quais linhas eu quero relacionar entre as tabelas. Importante ressaltar que essa conexão deve existir pela presença de chaves estrangeiras que interliguem as tabelas.
 
 ### *LEFT JOIN*
 
@@ -26,3 +25,7 @@
 
 - ![[diagrama de Venn.png]]
 - Com a utilização de conceitos da teoria de conjuntos, esse diagrama ajuda a ilustrar como são feitas os joins do SQL. 
+
+## *OBS*
+
+- Na prática, outra palavra reservada pelo SQL é utilizada em conjunto com essas uniões sendo ela <mark style="background: #ABF7F7A6;">ON</mark>. Após ela, vem uma condicional informando quais linhas eu quero relacionar entre as tabelas. Importante ressaltar que essa conexão deve existir pela presença de chaves estrangeiras que interliguem as tabelas.
