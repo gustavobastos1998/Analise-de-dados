@@ -1,0 +1,69 @@
+-- Atividade ciclo 03 aula 07 sql intermediario
+
+/*1. Gerar uma tabela de dados com 20 linhas e contendo
+as seguintes colunas: 1) Id do pedido, 2) status do
+pedido, 3) id do produto, 4) categoria do produto, 5)
+avaliação do pedido, 6) valor do pagamento, 7) tipo do
+pagamento, 8) cidade do vendedor, 9) latitude e
+longitude da cidade do vendedor.*/
+
+SELECT o.order_id,
+	   o.order_status,
+	   oi.product_id,
+	   p.product_category_name,
+	   orr.review_comment_message,
+	   op.payment_value,
+	   op.payment_type,
+	   s.seller_city,
+	   g.geolocation_lat,
+	   g.geolocation_lng 
+FROM orders o LEFT JOIN order_items oi ON (o.order_id = oi.order_id)
+	 LEFT JOIN products p ON (oi.product_id = p.product_id)
+	 LEFT JOIN order_payments op ON (o.order_id = op.order_id)
+	 LEFT JOIN order_reviews orr ON (o.order_id = orr.order_id)
+	 LEFT JOIN sellers s ON (oi.seller_id = s.seller_id)
+	 LEFT JOIN geolocation g ON (s.seller_zip_code_prefix = g.geolocation_zip_code_prefix)
+LIMIT 20
+
+/*2. Quantos tipos de pagamentos foram usados pelo
+cliente para pagar o pedido 'e481f51cbdc54678b7cc49136f2d6af7ʼ*/
+
+SELECT COUNT(DISTINCT op.payment_type) AS tipos_pagamento_distinto
+FROM orders o LEFT JOIN order_payments op ON (o.order_id = op.order_id)
+WHERE o.order_id = 'e481f51cbdc54678b7cc49136f2d6af7'
+
+-- 3. Quantos pedidos tem mais de 5 itens?
+
+SELECT o.order_id,
+	   COUNT (DISTINCT oi.product_id) AS qtd_itens
+FROM orders o LEFT JOIN order_items oi ON (o.order_id = oi.order_id)
+GROUP BY o.order_id 
+HAVING COUNT (DISTINCT oi.product_id) > 5
+
+-- 4. Qual a cardinalidade entre as tabelas pedidos (orders) e avaliações (reviews)?
+-- resposta: 1:N, a query abaixo agrupa pedidos e as quantidades de reviews para aquele pedido
+
+SELECT o.order_id,
+	   COUNT (orr.review_id) AS qtd_reviews
+FROM orders o LEFT JOIN order_reviews orr ON (o.order_id = orr.order_id)
+GROUP BY o.order_id 
+HAVING COUNT (orr.review_id) > 1 
+
+-- 5. Quantos pedidos não tem nenhuma avaliação?
+-- resposta: não existe pedido sem avaliação
+
+SELECT o.order_id,
+	   orr.review_id 
+FROM orders o LEFT JOIN order_reviews orr ON (o.order_id = orr.order_id)
+WHERE orr.review_id IS NULL
+
+-- 6. Quais são os top 10 vendedores com mais clientes?
+
+SELECT s.seller_id,
+	   COUNT (DISTINCT c.customer_id) AS qtd_clientes_unicos 
+FROM orders o LEFT JOIN order_items oi ON (o.order_id = oi.order_id)
+	 LEFT JOIN customer c ON (o.customer_id = c.customer_id)
+	 LEFT JOIN sellers s ON (oi.seller_id = s.seller_id)
+GROUP BY s.seller_id 
+ORDER BY COUNT (DISTINCT c.customer_id) DESC 
+LIMIT 10
