@@ -1,4 +1,4 @@
--- Atividade ciclo 03 aula 07 sql intermediario
+-- Atividade ciclo 03 aula 06 sql intermediario
 
 /*1. Gerar uma tabela de dados com 20 linhas e contendo
 as seguintes colunas: 1) Id do pedido, 2) status do
