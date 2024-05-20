@@ -1,0 +1,77 @@
+-- Atividade ciclo 04 aula 01 sql avancado
+
+/*.1 Crie uma consulta que exiba o código do produto e a categoria de cada produto
+com base no seu preço:
+Preço abaixo de 50 → Categoria A
+Preço entre 50 e 100 → Categoria B
+Preço entre 100 e 500 → Categoria C
+Preço entre 500 e 1500 → Categoria D
+Preço acima de 1500 → Categoria E*/
+
+SELECT oi.product_id,
+	   CASE WHEN oi.price < 50 THEN 'Categoria A'
+	   WHEN oi.price BETWEEN 50 AND 100 THEN 'Categoria B'
+	   WHEN oi.price BETWEEN 100 AND 500 THEN 'Categoria C'
+	   WHEN oi.price BETWEEN 500 AND 1500 THEN 'Categoria D'
+	   ELSE 'Categoria E' END AS categoria_produto
+FROM order_items oi
+
+/*2. Calcule a quantidade de produtos para cada uma das categorias criadas no
+exercícios anterior*/
+
+SELECT t1.categoria_produto,
+	   COUNT(t1.product_id) 
+FROM (SELECT oi.product_id,
+			 CASE WHEN oi.price < 50 THEN 'Categoria A'
+			 WHEN oi.price BETWEEN 50 AND 100 THEN 'Categoria B'
+			 WHEN oi.price BETWEEN 100 AND 500 THEN 'Categoria C'
+			 WHEN oi.price BETWEEN 500 AND 1500 THEN 'Categoria D'
+			 ELSE 'Categoria E' END AS categoria_produto
+	  FROM order_items oi
+	 ) t1
+GROUP BY t1.categoria_produto 
+
+/*3 Selecione os seguintes categorias de produtos: livros técnicos, pet shop, pc gamer,
+tablets impressão imagem, fashion esports, perfumaria, telefonia, beleza saude,
+ferramentas jardim.
+Crie uma primeira coluna mostrando o novo preço da categoria, segundo os valores
+abaixo:
+Livros técnicos - 10% de desconto
+Pet shop - 20% de desconto
+PC gamer - 50% de aumento
+Tablets - 10% de aumento
+Fashion Esports - 5% de aumento
+Crie uma segunda coluna mostrando se a categoria sofreu ou não alteração de preço*/
+
+SELECT p.product_category_name,
+	   oi.price,
+	   CASE WHEN p.product_category_name = 'livros_tecnicos' THEN (oi.price*0.9)
+	   		WHEN p.product_category_name = 'pet_shop' THEN (oi.price*0.8)
+	   		WHEN p.product_category_name = 'pc_gamer' THEN (oi.price*1.5)
+	   		WHEN p.product_category_name = 'tablets_impressao_imagem' THEN (oi.price*1.1)
+	   		WHEN p.product_category_name = 'fashion_esporte' THEN (oi.price*1.05)
+	   		ELSE oi.price
+	   END AS novo_preco,
+	   CASE WHEN p.product_category_name IN ('livros_tecnicos','pet_shop','pc_gamer',
+	   										 'tablets_impressao_imagem','fashion_esporte')
+		    THEN 'preco alterado'
+	   		ELSE 'preco nao alterado'
+	   END AS preco_alterado
+FROM order_items oi LEFT JOIN products p ON (oi.product_id = p.product_id)
+WHERE p.product_category_name IN ('livros_tecnicos','pet_shop','pc_gamer','tablets_impressao_imagem',
+								  'fashion_esporte','perfumaria','telefonia','beleza_saude','ferramentas_jardim')
+/*4 Crie uma coluna que mostra o status de entrega do pedido. Se a coluna estiver
+vazia, o status é de pendente.
+“order_delivered_customer_date” - pendente
+"order_delivered_customer_date” menor que o dia 01 de Junho de 2017 - entregue
+“order_delivered_customer_date” maior que o dia 01 de Junho de 2017 -
+programado*/
+
+SELECT o.order_id,
+	   o.order_delivered_customer_date,
+	   CASE WHEN DATE(o.order_delivered_customer_date) <= '2017-06-01' THEN 'entregue'
+	   		WHEN DATE(o.order_delivered_customer_date) > '2017-06-01'THEN 'programado'
+	   ELSE 'pendente'
+	   END AS status
+FROM orders o
+WHERE o.order_delivered_customer_date IS NOT NULL
