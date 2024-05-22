@@ -16,3 +16,18 @@
 ***
 
 - ![[case when aninhado.png]]
+
+## *Verificar o tipo da coluna em SQLite*
+***
+- Existe um comando em sql que verifica os elementos de uma tabela ou coluna. 
+- Esses comandos mudam para cada banco de dados, e para o SQLite são: 
+- ![[pragma typeof sqlite.png]]
+
+## *Mudar o tipo da coluna*
+***
+
+- Para fazer a troca de tipos o comando <mark style="background: #ABF7F7A6;">CAST</mark> é utilizado. A sintaxe é desta maneira: <mark style="background: #ADCCFFA6;">CAST (_coluna_ AS _novo tipo_)</mark>
+- Os tipos variam de banco para banco. Para o SQLite os tipos podem ser:
+- ![[tipos sqlite.png]]
+- Exemplo: ![[exemplo cast sqlite.png]]
+
