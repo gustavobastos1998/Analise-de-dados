@@ -1,0 +1,143 @@
+-- Atividade ciclo04 aula 02 sql avancado
+
+/*1 Qual o valor da média ponderada das avaliações dos produtos que
+foram comprados a partir do dia 1 de Janeiro de 2018.
+Nota 5 -> Peso 0.2
+Nota 4 -> Peso 0.1
+Nota 3 -> Peso 0.3
+Nota 2 -> Peso 0.3
+Nota 1 -> Peso 0.1
+Nota 0 -> Peso 0.0*/
+ 
+SELECT 
+	   SUM(t2.review_multiplicado_peso)/ SUM(t2.pesos) AS media_ponderada
+FROM
+	(SELECT 
+		o.order_purchase_timestamp,
+		(t1.review_score * t1.pesos) AS review_multiplicado_peso,
+		t1.pesos
+FROM
+		orders o
+LEFT JOIN (
+	SELECT
+			or2.order_id,
+			or2.review_score,
+			CASE 
+			 WHEN or2.review_score = 0 THEN 0
+			 WHEN or2.review_score IN (1, 4) THEN 0.1
+			 WHEN or2.review_score IN (2, 3) THEN 0.3
+			ELSE 0.2
+		END AS pesos
+	FROM
+			order_reviews or2) AS t1 on
+		(o.order_id = t1.order_id)) AS t2
+WHERE
+	t2.order_purchase_timestamp >= '2018-01-01 00:00:00';
+
+/*2. Calcule a média ponderada por mês, do exercício anterior*/
+
+SELECT 
+	   t2.mes,
+	   SUM(t2.review_multiplicado_peso)/ SUM(t2.pesos) AS media_ponderada
+FROM
+	(
+	SELECT 
+		 o.order_purchase_timestamp AS date_,
+		 t1.mes AS mes,
+		(t1.review_score * t1.pesos) AS review_multiplicado_peso,
+		t1.pesos
+	FROM
+		orders o
+	LEFT JOIN (
+		SELECT
+			or2.order_id,
+			or2.review_score,
+			STRFTIME('%m', or2.review_creation_date) AS mes, 
+			CASE 
+				WHEN or2.review_score = 0 THEN 0
+				WHEN or2.review_score IN (1, 4) THEN 0.1
+				WHEN or2.review_score IN (2, 3) THEN 0.3
+				ELSE 0.2
+			END AS pesos
+		FROM
+			order_reviews or2) AS t1 on
+		(o.order_id = t1.order_id)
+	 ) AS t2
+WHERE
+	t2.date_ >= '2018-01-01 00:00:00'
+GROUP BY
+	t2.mes;
+
+/*3. Selecione as seguintes categorias de produtos: livros técnicos, pet
+shop, pc gamer, tablets impressão imagem, fashion esports, perfumaria,
+telefonia, beleza saude, ferramentas jardim.
+Calcule o desconto total, o desconto médio, o desconto mínimo, o
+desconto máximo e quantidade de produtos com desconto, dado pela
+loja ao reduzir o valor dos produtos da seguinte categoria:
+Livros técnicos -> 10% de desconto
+Pet shop -> 20% de desconto
+PC gamer -> 50% de desconto
+Tablets -> 90% de desconto
+Fashion Esports -> 40% de desconto*/
+
+SELECT
+	SUM(oi.price * t1.descontos) AS desconto_total,
+	AVG(oi.price * t1.descontos) AS desconto_medio,
+	MIN(oi.price * t1.descontos) AS desconto_minimo,
+	MAX(oi.price * t1.descontos) AS desconto_maximo,
+	COUNT(DISTINCT t1.product_id) AS qtd_produtos_em_descontos
+FROM
+	order_items oi
+LEFT JOIN (
+	SELECT 
+		p.product_id,
+		p.product_category_name,
+		CASE 
+			WHEN p.product_category_name = 'livros_tecnicos' THEN 0.1
+			WHEN p.product_category_name = 'pet_shop' THEN 0.2
+			WHEN p.product_category_name = 'pc_gamer' THEN 0.5
+			WHEN p.product_category_name = 'tablets_impressao_imagem' THEN 0.9
+			WHEN p.product_category_name = 'fashion_esporte' THEN 0.4
+		END AS descontos
+	FROM
+		products p
+	WHERE
+		descontos IS NOT NULL
+		  ) AS t1 ON
+	(oi.product_id = t1.product_id);
+
+/*4. Usando o exercícios anterior, crie uma consulta que calcule o
+desconto total, o desconto médio, o desconto mínimo, o desconto máximo
+e quantidade de produtos com desconto por categoria
+*/
+
+SELECT
+	t1.product_category_name,
+	SUM(oi.price * t1.descontos) AS desconto_total,
+	AVG(oi.price * t1.descontos) AS desconto_medio,
+	MIN(oi.price * t1.descontos) AS desconto_minimo,
+	MAX(oi.price * t1.descontos) AS desconto_maximo,
+	COUNT(DISTINCT t1.product_id) AS qtd_produtos_em_descontos
+FROM
+	order_items oi
+LEFT JOIN (
+	SELECT 
+		p.product_id,
+		p.product_category_name,
+		CASE 
+			WHEN p.product_category_name = 'livros_tecnicos' THEN 0.1
+			WHEN p.product_category_name = 'pet_shop' THEN 0.2
+			WHEN p.product_category_name = 'pc_gamer' THEN 0.5
+			WHEN p.product_category_name = 'tablets_impressao_imagem' THEN 0.9
+			WHEN p.product_category_name = 'fashion_esporte' THEN 0.4
+		END AS descontos
+	FROM
+		products p
+	WHERE
+		descontos IS NOT NULL
+		  ) AS t1 ON
+	(oi.product_id = t1.product_id)
+WHERE
+	t1.product_category_name IS NOT NULL
+GROUP BY
+	t1.product_category_name;
