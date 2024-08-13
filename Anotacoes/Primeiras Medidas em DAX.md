@@ -22,3 +22,15 @@
 
 - Para um único valor, como vendas totais, quantidade de produtos etc, a '<mark style="background: #FFB86CA6;">visualização de cartão</mark>' pode ser a melhor forma de exibição. 
 - Assim como quase todas as visualizações nativas do Power BI, os cartões podem ser criados através da guia de '<mark style="background: #FFB86CA6;">visualizações</mark>'.
+
+## *Gráfico de Barras*
+***
+
+- Usado para exibir séries combinadas, organizar e facilitar a visualização de dados.
+- Comparação entre grupos é um ótimo exemplo de sua utilidade.
+
+## *Segmentação de Dados (slicer)*
+***
+
+- Tipo de filtragem que restringe parte do conjunto de dados mostrado na visualização do relatório. 
+- Não aceitam medidas (measures), só aceitam colunas ou colunas calculadas.
