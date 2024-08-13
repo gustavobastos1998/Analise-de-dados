@@ -1,0 +1,143 @@
+-- Atividade ciclo 05 aula 02 sql banco de dados
+
+/*1. criar tabela 'vendas'. Ela contém o resultado de uma query usando with que
+ * calcula o total de vendas para cada categoria.*/
+
+
+CREATE TABLE vendas (
+categoria TEXT,
+price REAL
+)
+
+SELECT *
+FROM vendas
+
+INSERT
+	INTO
+	vendas (categoria,
+	price)
+WITH aux AS (
+	SELECT
+		p.product_category_name AS category_name,
+		SUM(oi.price) AS preco
+	FROM
+		order_items oi
+	LEFT JOIN products p ON
+		(oi.product_id = p.product_id)
+	GROUP BY
+		p.product_category_name
+	HAVING
+		p.product_category_name IS NOT NULL 
+)
+SELECT category_name,
+	   preco
+FROM aux
+
+/*2. Delete as linhas da tabela “Vendasˮ que possuem os valores da
+coluna “priceˮ menores do que 500000.*/
+
+DELETE FROM vendas 
+WHERE price < 500000
+
+SELECT *
+FROM vendas
+
+
+/*3. Faça o seguinte passo a passo:
+1) Crie uma tabela chamada “Entregaˮ com 5 colunas:
+	a) category
+	b) price
+	c) shipping
+	d) first_purchase_date
+	e) days_from_first_purchase
+2) Crie uma consulta SQL com as seguintes colunas:
+	a) Categoria
+	b) Preço
+	c) Date limite de envio
+	d) Primeira compra
+	e) Número de dias que o produto foi comprado a partir da primeira
+	compra dentro da mesma categoria.
+3) Insira o resultado da consulta SQL do item 2 na tabela criada no item 1.
+4) Remova todas linhas que tiverem o preço maior que 29.90 e dias
+desde a primeira compra maior que 90
+5) Quantas linhas foram removidas?
+6) Delete a tabela Entrega do banco de dados
+7) Recrie a tabela Entrega mudando o tipo da coluna “priceˮ para
+INTEGER
+8) Insira novamente os valores do item 3
+9) Remova todas linhas que tiverem o preço menor que 29.90 e dias
+desde a primeira compra menor que 90*/
+
+-- 1)
+
+CREATE TABLE entrega (
+category TEXT, 
+price REAL, 
+shipping TEXT, 
+first_purchase_date TEXT, 
+days_from_first_purchase TEXT
+)
+
+-- 2 e 3)
+
+INSERT INTO entrega (category, price, shipping, first_purchase_date, days_from_first_purchase)
+WITH table_temp AS(
+SELECT
+	p.product_category_name,
+	oi.price,
+	oi.shipping_limit_date,
+	FIRST_VALUE(oi.shipping_limit_date) OVER (PARTITION
+BY p.product_category_name
+ORDER BY
+	oi.shipping_limit_date ) AS
+first_purchase
+FROM
+	order_items oi
+INNER JOIN products p ON
+	(p.product_id
+= oi.product_id )
+WHERE
+	p.product_category_name IS NOT NULL
+)
+SELECT
+	product_category_name,
+	price,
+	STRFTIME( '%Y-%m-%d',
+	shipping_limit_date ) AS
+shipping_limit_date,
+	STRFTIME('%Y-%m-%d',
+	first_purchase ) AS first_purchase,
+	CAST(( JULIANDAY(shipping_limit_date) - JULIANDAY(first_purchase) ) AS INTEGER ) AS days
+FROM
+	table_temp
+
+-- 4)
+
+DELETE FROM entrega 
+WHERE price > 29.9 AND days_from_first_purchase > 90
+
+-- 5) 139 eu acho, nao lembro, executei e fechei o pop up
+
+-- 6)
+
+DROP TABLE entrega
+
+-- 7)
+
+CREATE TABLE entrega (
+category TEXT, 
+price INTEGER, 
+shipping TEXT, 
+first_purchase_date TEXT, 
+days_from_first_purchase TEXT
+)
+
+-- 8)
+
+-- executar a query da questão 2 e 3
+
+-- 9)
+
+DELETE FROM entrega 
+WHERE price < 29.9 AND days_from_first_purchase < 90
+
