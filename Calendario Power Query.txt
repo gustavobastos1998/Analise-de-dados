@@ -1,3 +1,7 @@
+Antes disso, a 'Query1' tem que ser criada. Basta criar uma query vazia no power query e digitar "= List.dates".
+Após configurar com a data de início, a quantidade de dias a partir do início e o espaçamento dos dias (1),
+basta abrir o 'Advanced Editor' e colar o código abaixo.
+Para mudar o range da data, basta editar a primeira etapa "Source"
 let
     Source = Query1(#date(2016, 1, 1), 1096, #duration(1, 0, 0, 0)),
     #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
