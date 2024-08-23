@@ -16,6 +16,11 @@
 - <mark style="background: #ABF7F7A6;">COUNTROWS(_table_)</mark> : conta o número de linhas na tabela específica ou em uma tabela definida por uma expressão. 
 - <mark style="background: #ABF7F7A6;">DISTINCTCOUNT(_coluna_)</mark> : conta valores distintos de uma coluna.
 - <mark style="background: #ABF7F7A6;">SUM(_coluna_)</mark> : soma valores de uma coluna.
+- <mark style="background: #ABF7F7A6;">CALCULATE(_expression_, filtro1, filtro2, ...)</mark> : utilizado quando queremos aplicar um filtro em uma expressão (measure). Pois, normalmente, filtros não podem ser aplicados à medidas, só às colunas, com o auxílio do CALCULATE isso é possível.
+- <mark style="background: #ABF7F7A6;">DIVIDE(_expression1_, _expression2_)</mark> : faz exatamente o que aparenta, divide duas expressões. 
+### *OBS*
+
+- CALCULATE e DIVIDE, principalmente o primeiro, tem utilidades muito expressivas para a análise de dados. A utilização do CALCULATE em conjunto de outras measures trás possibilidades poderosas para filtragem de datas por exemplo.
 
 ## *Como apresentar o resultado de uma medida*
 ***
