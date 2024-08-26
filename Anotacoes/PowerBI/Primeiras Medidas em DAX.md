@@ -18,6 +18,8 @@
 - <mark style="background: #ABF7F7A6;">SUM(_coluna_)</mark> : soma valores de uma coluna.
 - <mark style="background: #ABF7F7A6;">CALCULATE(_expression_, filtro1, filtro2, ...)</mark> : utilizado quando queremos aplicar um filtro em uma expressão (measure). Pois, normalmente, filtros não podem ser aplicados à medidas, só às colunas, com o auxílio do CALCULATE isso é possível.
 - <mark style="background: #ABF7F7A6;">DIVIDE(_expression1_, _expression2_)</mark> : faz exatamente o que aparenta, divide duas expressões. 
+- <mark style="background: #ABF7F7A6;">SAMEPERIODLASTYEAR(_data_)</mark> : retorna uma tabela que contém os valores de datas para um ano anterior. Geralmente utilizado com o CALCULATE. Exemplo abaixo conta a quantidade de linhas da tabela orders do ano anterior.
+- ![[sameperiodlastyear.png]]
 ### *OBS*
 
 - CALCULATE e DIVIDE, principalmente o primeiro, tem utilidades muito expressivas para a análise de dados. A utilização do CALCULATE em conjunto de outras measures trás possibilidades poderosas para filtragem de datas por exemplo.
