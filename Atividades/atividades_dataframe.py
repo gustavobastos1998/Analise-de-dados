@@ -36,7 +36,7 @@ df['Delivery_person_Ratings'] = df['Delivery_person_Ratings'].astype('float16') 
 
 # Conversão da coluna Order_Date de string para datetime
 df['Order_Date'] = pd.to_datetime(df['Order_Date'],format='%d-%m-%Y')
-# print(df['Order_Date'])
+# print(type(df['Order_Date'][0]))
 
 # Conversão da coluna multiple_deliveries de string para int
 df['multiple_deliveries'] = pd.to_numeric(df['multiple_deliveries'],errors = 'coerce') # Converte a coluna 'multiple_deliveries' para float e coloca 'NaN' para qualquer valor diferente de número
@@ -51,6 +51,11 @@ df['Type_of_order'] = df['Type_of_order'].str.strip()
 df['Type_of_vehicle'] = df['Type_of_vehicle'].str.strip()
 df['City'] = df['City'].str.strip()
 df['Festival'] = df['Festival'].str.strip()
+
+# transformar Time_taken(min) para número
+df['Time_taken(min)'] = df['Time_taken(min)'].apply(lambda x: x.split('(min) ')[1])
+df['Time_taken(min)'] = df['Time_taken(min)'].astype('int8')
+print(df['ID'])
 
 """# Primera Atividade
 
@@ -178,3 +183,78 @@ df.loc[100:120,'Type_of_order'].unique().tolist()
 # 20.
 # qtd_entregas_por_tipo_densidade_transito = df.groupby('Road_traffic_density')['ID'].count()
 # print(f'Quantidade de entregas feitas por tipo de densidade de tráfego:\n{qtd_entregas_por_tipo_densidade_transito}')
+
+"""# Terceira atividade"""
+
+# import da biblioteca de graficos
+import plotly.express as px
+
+# 1. Qual a quantidade de pedidos feitos por dia?
+# aux = df.groupby('Order_Date')['ID'].count().reset_index()
+# print(f'{aux}')
+# px.bar(aux,x='Order_Date',y='ID')
+
+# 2. Qual a quantidade de pedidos por semana?
+# criar coluna week_of_year
+df['week_of_year'] = df['Order_Date'].dt.strftime('%U')
+pedidos_por_semana = df.groupby('week_of_year')['ID'].count().reset_index()
+# disclaimer: na base de dados só há informações do ano de 2022, caso existisse outro ano, uma coluna de ano deveria ser adcionada ao dataframe, para que o groupby seja por semana do ano e ano
+# print(f'{pedidos_por_semana}')
+# px.line(pedidos_por_semana,x='week_of_year',y='ID')
+
+# 3. Distribuição relativa dos IDs por densidade de tráfego
+pedidos_por_tipo_de_trafego = df.groupby('Road_traffic_density')['ID'].count().reset_index()
+soma_total = pedidos_por_tipo_de_trafego.sum()['ID']
+percentual_relativo = pedidos_por_tipo_de_trafego['ID']/soma_total*100
+pedidos_por_tipo_de_trafego['Percentual_relativo'] = percentual_relativo
+# print(pedidos_por_tipo_de_trafego[['Road_traffic_density','Percentual_relativo']])
+# px.pie(pedidos_por_tipo_de_trafego,names='Road_traffic_density',values='Percentual_relativo')
+
+# 4. Volume de entregas por cidade e densidade de tráfego
+qtd_pedidos_cidade_trafego = df.groupby(['City','Road_traffic_density'])['ID'].count().reset_index()
+# print(qtd_pedidos_cidade_trafego)
+# px.scatter(qtd_pedidos_cidade_trafego,x='City',y='Road_traffic_density',size='ID',color='City')
+
+# 5. Quantidade de entregas de cada entregador por semana
+qtd_entregas_por_entregador_por_semana = df.groupby(['Delivery_person_ID','week_of_year'])['ID'].count().reset_index()
+print(qtd_entregas_por_entregador_por_semana)
+
+"""# Quarta atividade"""
+
+# 1. Menor e maior idade dos entregadores
+menor_idade = df['Delivery_person_Age'].min()
+maior_idade = df['Delivery_person_Age'].max()
+# print(f'Menor idade: {menor_idade}')
+# print(f'Maior idade: {maior_idade}')
+
+# 2.
+pior_condicao = df['Vehicle_condition'].min()
+melhor_condicao = df['Vehicle_condition'].max()
+# print(f'Pior condição: {pior_condicao}')
+# print(f'Melhor condição: {melhor_condicao}')
+
+# 3. Media de avaliação por entregador
+avaliacao_media_por_entregador = df.groupby('Delivery_person_ID')['Delivery_person_Ratings'].mean().reset_index()
+# print(avaliacao_media_por_entregador)
+
+# 4. Desvio padrão e média de avaliações por densidade de tráfego
+df_without_NaN = df[df['Road_traffic_density'] != 'NaN']
+avaliacao_media_por_densidade = df_without_NaN.groupby('Road_traffic_density')['Delivery_person_Ratings'].std().reset_index()
+avaliacao_media_por_densidade['Media'] = df_without_NaN.groupby('Road_traffic_density')['Delivery_person_Ratings'].mean().reset_index()['Delivery_person_Ratings']
+avaliacao_media_por_densidade.rename(columns={'Delivery_person_Ratings':'Desvio_Padrao'},inplace=True)
+# print(avaliacao_media_por_densidade)
+
+# 5. Desvio padrão e média de avaliações por condições climáticas
+df_without_NaN = df[df['Weatherconditions'] != 'conditions NaN']
+avaliacao_media_por_condicoes_climaticas = df_without_NaN.groupby('Weatherconditions')['Delivery_person_Ratings'].std().reset_index()
+avaliacao_media_por_condicoes_climaticas['Media'] = df_without_NaN.groupby('Weatherconditions')['Delivery_person_Ratings'].mean().reset_index()['Delivery_person_Ratings']
+avaliacao_media_por_condicoes_climaticas.rename(columns={'Delivery_person_Ratings':'Desvio_Padrao'},inplace=True)
+# print(avaliacao_media_por_condicoes_climaticas)
+
+# 6. Os dez entregadores mais rápidos
+dez_mais_rapidos = df.nsmallest(10,'Time_taken(min)')
+print(dez_mais_rapidos[['Delivery_person_ID','Time_taken(min)']])
+
+# 7. Os dez entregadores mais lentos
+dez_mais_lentos = df.nlargest(10,'Time_taken(min)')
+print(dez_mais_lentos[['Delivery_person_ID','Time_taken(min)']])
