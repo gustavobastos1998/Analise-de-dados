@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as stl
 from PIL import Image
+from streamlit_folium import folium_static
+import folium
+
 
 # import dataset
 df = pd.read_csv('D:/Estudos/Analise-de-dados/Projetos/datasets/train.csv')
@@ -72,45 +75,6 @@ df['Time_taken(min)'] = df['Time_taken(min)'].astype('int8')
 stl.header('Marketplace')
 tab1, tab2, tab3 = stl.tabs(['Management View','Tactical View','Geographic View'])
 
-with tab1:
-    with stl.container():
-        stl.markdown('Orders by day')
-        aux = df.groupby('Order_Date')['ID'].count().reset_index()
-        fig, ax = plt.subplots(figsize=(15,6))
-        ax.set_xlabel('day')
-        ax.set_ylabel('ID quantity')
-        ax.bar(aux['Order_Date'].values,aux['ID'],color=['purple'])
-        fig.patch.set_facecolor('gray')
-        ax.set_facecolor('lightblue')
-        stl.pyplot(fig,use_container_width=True)
-    with stl.container():
-        col1, col2 = stl.columns(2)
-        with col1:
-            stl.markdown('Orders by week')
-            df['week_of_year'] = df['Order_Date'].dt.strftime('%U') # cria a coluna 'week_of_year' e o dt.strftime('%U') elenca segunda-feira como o primeiro dia da semana
-            pedidos_por_semana = df.groupby('week_of_year')['ID'].count().reset_index()
-            fig, axes = plt.subplots(figsize=(6.4,6.75))
-            axes.set_xlabel('Week of Year')
-            axes.set_ylabel('ID quantity')
-            axes.grid()
-            axes.plot(pedidos_por_semana['week_of_year'],pedidos_por_semana['ID'],marker='o',markerfacecolor='green',linestyle='-',color='blue')
-            fig.patch.set_facecolor('gray')
-            stl.pyplot(fig, use_container_width=True)
-        with col2:
-            stl.markdown('Percentage of deliveries by traffic density')
-            pedidos_por_tipo_de_trafego = df.groupby('Road_traffic_density')['ID'].count().reset_index()
-            soma_total = pedidos_por_tipo_de_trafego.sum()['ID']
-            percentual_relativo = pedidos_por_tipo_de_trafego['ID']/soma_total*100
-            pedidos_por_tipo_de_trafego['Percentual_relativo'] = percentual_relativo
-            fig, axes = plt.subplots(figsize=(6.4,5.3))
-            axes.pie(percentual_relativo, labels=pedidos_por_tipo_de_trafego['Road_traffic_density'],autopct='%1.1f%%')
-            fig.patch.set_facecolor('gray')
-            stl.pyplot(fig, use_container_width=True)
-with tab2:
-    stl.markdown('opa')
-with tab3:
-    stl.markdown('opa')
-
 # =========================================================================================
 # sidebar
 # =========================================================================================
@@ -125,16 +89,111 @@ stl.sidebar.markdown('***')
 stl.sidebar.markdown('## Select a data limit')
 date_slider = stl.sidebar.slider(
     'Until which date?',
-    value=pd.to_datetime('2022-04-06').date(),
-    min_value=pd.to_datetime('2022-02-11').date(),
-    max_value=pd.to_datetime('2022-04-06').date(),
+    value=df['Order_Date'].max().to_pydatetime(),
+    min_value=df['Order_Date'].min().to_pydatetime(),
+    max_value=df['Order_Date'].max().to_pydatetime(),
     format='DD-MM-YYYY')
 traffic_options = stl.sidebar.multiselect(
-    'Which traffic condition you want to sort?',
+    'Which traffic condition you want to select?',
     ['Low','Medium','High','Jam'],
     default='Low'
 )
 stl.sidebar.markdown('***')
+# date filter
+selected_lines = df['Order_Date'] <= date_slider
+df = df.loc[selected_lines,:]
+
+# road density filter
+selected_lines = df['Road_traffic_density'].isin(traffic_options)
+df = df.loc[selected_lines,:]
+
+# =========================================================================================
+# management View
+# =========================================================================================
+
+with tab1:
+    with stl.container():
+        stl.markdown('### Orders by day')
+        aux = df.groupby('Order_Date')['ID'].count().reset_index()
+        fig, ax = plt.subplots(figsize=(15,6))
+        ax.set_xlabel('day')
+        ax.set_ylabel('ID quantity')
+        ax.bar(aux['Order_Date'].values,aux['ID'],color=['purple'])
+        fig.patch.set_facecolor('gray')
+        ax.set_facecolor('lightblue')
+        stl.pyplot(fig,use_container_width=True)
+    with stl.container():
+        col1, col2 = stl.columns(2)
+        with col1:
+            stl.markdown('Amount of IDs by city and road traffic density')
+            qtd_pedidos_cidade_trafego = df.groupby(['City','Road_traffic_density'])['ID'].count().reset_index()
+            unique_cities = qtd_pedidos_cidade_trafego['City'].unique()
+            city_color_mapping = {city: i for i, city in enumerate(unique_cities)}
+            qtd_pedidos_cidade_trafego['colors'] = qtd_pedidos_cidade_trafego['City'].map(city_color_mapping)
+            fig, axes = plt.subplots(figsize=(15,15.48))
+            axes.set_xlabel('City')
+            axes.set_ylabel('Road traffic density')
+            axes.set_title('amount of IDs grouped by city and traffic density')
+            axes.scatter(qtd_pedidos_cidade_trafego['City'],qtd_pedidos_cidade_trafego['Road_traffic_density'],s=qtd_pedidos_cidade_trafego['ID'],c=qtd_pedidos_cidade_trafego['colors'])
+            fig.patch.set_facecolor('gray')
+            stl.pyplot(fig,use_container_width=True)
+            
+        with col2:
+            stl.markdown('Percentage of deliveries by traffic density')
+            pedidos_por_tipo_de_trafego = df.groupby('Road_traffic_density')['ID'].count().reset_index()
+            soma_total = pedidos_por_tipo_de_trafego.sum()['ID']
+            percentual_relativo = pedidos_por_tipo_de_trafego['ID']/soma_total*100
+            pedidos_por_tipo_de_trafego['Percentual_relativo'] = percentual_relativo
+            fig, axes = plt.subplots(figsize=(6.4,5))
+            axes.pie(percentual_relativo, labels=pedidos_por_tipo_de_trafego['Road_traffic_density'],autopct='%1.1f%%')
+            fig.patch.set_facecolor('gray')
+            stl.pyplot(fig, use_container_width=True)
+
+# =========================================================================================
+# tactical view
+# =========================================================================================
+
+with tab2:
+    with stl.container():
+        stl.markdown('### Orders by week')
+        df['week_of_year'] = df['Order_Date'].dt.strftime('%U') # cria a coluna 'week_of_year' e o dt.strftime('%U') elenca segunda-feira como o primeiro dia da semana
+        pedidos_por_semana = df.groupby('week_of_year')['ID'].count().reset_index()
+        fig, axes = plt.subplots(figsize=(6.4,6.75))
+        axes.set_xlabel('Week of Year')
+        axes.set_ylabel('ID quantity')
+        axes.grid()
+        axes.plot(pedidos_por_semana['week_of_year'],pedidos_por_semana['ID'],marker='o',markerfacecolor='green',linestyle='-',color='blue')
+        fig.patch.set_facecolor('gray')
+        stl.pyplot(fig,use_container_width=True)
+    with stl.container():
+        stl.markdown('### Order share by week')
+        df_aux1 = df.groupby('week_of_year')['ID'].count().reset_index()
+        df_aux2 = df.groupby('week_of_year')['Delivery_person_ID'].nunique().reset_index()
+        df_aux = pd.merge(df_aux1, df_aux2, how='inner', on='week_of_year')
+        df_aux['order_by_deliver'] = df_aux['ID']/df_aux['Delivery_person_ID']
+        fig, axes = plt.subplots(figsize=(6.4,6.75))
+        axes.set_xlabel('week of year')
+        axes.set_ylabel('order by deliver')
+        axes.grid()
+        axes.plot(df_aux['week_of_year'],df_aux['order_by_deliver'],marker='o',markerfacecolor='green',linestyle='-',color='blue')
+        fig.patch.set_facecolor('gray')
+        stl.pyplot(fig,use_container_width=True)
+# =========================================================================================
+# geographic view
+# =========================================================================================
+
+with tab3:
+    stl.markdown('Median points of latitudes and longitudes grouped by city and traffic density.')
+    df_aux = df.groupby(['City','Road_traffic_density'])['Delivery_location_latitude'].median().reset_index()
+    df_aux['median_longitude'] = df.groupby(['City','Road_traffic_density'])['Delivery_location_longitude'].median().reset_index()['Delivery_location_longitude']
+    df_aux.rename(columns={'Delivery_location_latitude':'median_latitude'},inplace=True)
+    map = folium.Map()
+    for i, location_info in df_aux.iterrows():
+        folium.Marker([location_info['median_latitude'],
+                     location_info['median_longitude']],
+                     popup=location_info[['City','Road_traffic_density']]).add_to(map)
+    
+    folium_static(map, width=1024, height=600)
 
 
 
