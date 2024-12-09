@@ -40,12 +40,6 @@ df.dropna(subset=['multiple_deliveries'], inplace=True) # Remove as linhas que t
 df['multiple_deliveries'] = df['multiple_deliveries'].astype('int8') # Transforma de float para int8
 # print(df['multiple_deliveries'].dtypes)
 
-# Remover NaN das latitudes e longitudes
-df.dropna(subset=['Restaurant_latitude'], inplace=True)
-df.dropna(subset=['Restaurant_longitude'], inplace=True)
-df.dropna(subset=['Delivery_location_latitude'], inplace=True)
-df.dropna(subset=['Delivery_location_longitude'], inplace=True)
-
 # Remover espaços em branco no final das strings de algumas colunas
 df['ID'] = df['ID'].str.strip()
 df['Road_traffic_density'] = df['Road_traffic_density'].str.strip()
@@ -58,6 +52,9 @@ df['Festival'] = df['Festival'].str.strip()
 df['City'] = df['City'].replace('NaN',np.nan)
 df.dropna(subset=['City'], inplace=True)
 # print(df['City'].unique())
+
+# Remover Nan da coluna Weatherconditions
+df.dropna(subset=['Weatherconditions'],inplace=True)
 
 # Remover NaN da coluna road_traffic_density
 df['Road_traffic_density'] = df['Road_traffic_density'].replace('NaN',np.nan)
@@ -72,7 +69,7 @@ df['Time_taken(min)'] = df['Time_taken(min)'].astype('int8')
 # Layout streamlit
 # =========================================================================================
 
-stl.header('Marketplace')
+stl.header('Marketplace - Enterprise View')
 tab1, tab2, tab3 = stl.tabs(['Management View','Tactical View','Geographic View'])
 
 # =========================================================================================
@@ -94,7 +91,7 @@ date_slider = stl.sidebar.slider(
     max_value=df['Order_Date'].max().to_pydatetime(),
     format='DD-MM-YYYY')
 traffic_options = stl.sidebar.multiselect(
-    'Which traffic condition you want to select?',
+    'Which traffic condition do you want to select?',
     ['Low','Medium','High','Jam'],
     default='Low'
 )
