@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import haversine as hs
 from PIL import Image
+import matplotlib.pyplot as plt
 
 # import dataset
 df = pd.read_csv('D:/Estudos/Analise-de-dados/Projetos/datasets/train.csv')
