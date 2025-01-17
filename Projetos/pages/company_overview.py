@@ -8,6 +8,8 @@ from PIL import Image
 from streamlit_folium import folium_static
 import folium
 
+stl.set_page_config(page_title='Home', page_icon='📈', layout='wide')
+
 # =========================================================================================
 # functions
 # =========================================================================================

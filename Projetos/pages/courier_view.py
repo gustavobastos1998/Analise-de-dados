@@ -1,9 +1,9 @@
 import streamlit as stl
 import pandas as pd
 import numpy as np
-import haversine as hs
 from PIL import Image
 
+stl.set_page_config(page_title='Home', page_icon='🚚', layout='wide')
 # =========================================================================================
 # functions
 # =========================================================================================
@@ -11,6 +11,7 @@ from PIL import Image
 # ===================
 # Data Preprocessing
 # ===================
+
 def data_cleaning(df):
     # Limpeza dos dados para melhorar o uso da base de dados
     # Conversão da coluna Delivery_person_Age de string para int
@@ -75,8 +76,6 @@ df = pd.read_csv('D:/Estudos/Analise-de-dados/Projetos/datasets/train.csv')
 data_cleaning(df)
 # print(df.head())
 
-
-
 # =========================================================================================
 # sidebar
 # =========================================================================================
@@ -100,15 +99,9 @@ traffic_options = stl.sidebar.multiselect(
     ['Low','Medium','High','Jam'],
     default='Low'
 )
-city_options = stl.sidebar.multiselect(
-    'Which city type do you want to select?',
-    df['City'].unique(),
-    default='Urban'
-)
-type_of_order_options = stl.sidebar.multiselect(
-    'Which type of order do you want to select?',
-    df['Type_of_order'].unique(),
-    default='Snack'
+weather_options = stl.sidebar.multiselect(
+    'Which weather conditions do you want to select?',
+    df['Weatherconditions'].unique()
 )
 stl.sidebar.markdown('***')
 # date filter
@@ -119,59 +112,60 @@ df = df.loc[selected_lines,:]
 selected_lines = df['Road_traffic_density'].isin(traffic_options)
 df = df.loc[selected_lines,:]
 
-# city filter
-selected_lines = df['City'].isin(city_options)
-df = df.loc[selected_lines,:]
-
-# type of order filter
-selected_lines = df['Type_of_order'].isin(type_of_order_options)
+# weather condition filter
+selected_lines = df['Weatherconditions'].isin(weather_options)
 df = df.loc[selected_lines,:]
 
 # =========================================================================================
-# streamlit layout
+# Streamlit layout
 # =========================================================================================
 
-stl.header('Marketplace - Restaurant View')
-tab1, tab2, tab3 = stl.tabs(['Delivery Performance','Delivery Time & Distance','City-Based Performance'])
+stl.header('Marketplace - Delivery View')
+tab1, tab2, tab3 = stl.tabs(['Delivery Stats','Delivery Ratings Analysis','Speed Metrics'])
+
 with tab1:
-    stl.markdown('')
     with stl.container():
-        stl.markdown('')
-        col1, col2 = stl.columns(2)
+        col1, col2, col3, col4 = stl.columns(4)
         with col1:
-            qtd_unique_employees = df['Delivery_person_ID'].nunique()
-            col1.metric('Number of employees', qtd_unique_employees)
+            youngest_delivery_person = df['Delivery_person_Age'].min()
+            col1.metric('Age of the youngest employee', youngest_delivery_person)
         with col2:
-            df_festival_on = df[df['Festival'] == 'Yes']
-            average_festival_on = df_festival_on['Time_taken(min)'].mean()
-            col2.metric('Average time taken during festival',f'{average_festival_on:.2f}')
+            oldest_delivery_person = df['Delivery_person_Age'].max()
+            col2.metric('Age of the oldest employee', oldest_delivery_person)
+        with col3:
+            best_condition = df['Vehicle_condition'].max()
+            col3.metric('Best Vehicle Condition', best_condition)
+        with col4:
+            worst_condition = df['Vehicle_condition'].min()
+            col4.metric('Worst Vehicle Condition', worst_condition)
 with tab2:
     with stl.container():
-        stl.subheader('Restaurants and delivery locations latitudes/longitudes and distance between them')
-        cols = ['Restaurant_latitude','Restaurant_longitude','Delivery_location_latitude','Delivery_location_longitude']
-        df_aux = df[cols]
-        df_aux['Distance_between_restaurant_and_delivery(km)'] = df.loc[:,cols].apply( lambda x: hs.haversine((x['Restaurant_latitude'],x['Restaurant_longitude']),(x['Delivery_location_latitude'],x['Delivery_location_longitude'])),axis=1)
-        stl.dataframe(df_aux, height=350, width=345)
-        stl.markdown('***')
-    with stl.container():   
-        stl.subheader('Average and standard deviation of the time taken to deliver grouped by city')
-        df_aux = df.groupby('City')['Time_taken(min)'].mean().reset_index()
-        df_aux.rename(columns={'Time_taken(min)':'average'},inplace=True)
-        df_aux['standard_deviation'] = df.groupby('City')['Time_taken(min)'].std().reset_index()['Time_taken(min)']
-        stl.dataframe(df_aux)
+        col1, col2 = stl.columns(2)
+        with col1:
+            stl.subheader('Average Rating by employee')
+            avaliacao_media_por_entregador = df.groupby('Delivery_person_ID')['Delivery_person_Ratings'].mean().reset_index()
+            avaliacao_media_por_entregador.rename(columns={'Delivery_person_Ratings':'Average_rating'},inplace=True)
+            stl.dataframe(avaliacao_media_por_entregador, height=538)
+        with col2:
+            stl.subheader('Average Rating by traffic density')
+            avg_rating_traffic = df.groupby('Road_traffic_density')['Delivery_person_Ratings'].mean().reset_index()
+            avg_rating_traffic.rename(columns={'Delivery_person_Ratings':'Average'},inplace=True)
+            stl.dataframe(avg_rating_traffic)
+            stl.subheader('Average Rating by weather condition')
+            avg_rating_weather = df.groupby('Weatherconditions')['Delivery_person_Ratings'].mean().reset_index()
+            avg_rating_weather.rename(columns={'Delivery_person_Ratings':'Average'},inplace=True)
+            stl.dataframe(avg_rating_weather)
 with tab3:
-    with stl.container():
-        stl.subheader('Average and standard deviation of the time taken to deliver grouped by city and type of order')
-        df_aux = df.groupby(['City','Type_of_order'])['Time_taken(min)'].mean().reset_index()
-        df_aux.rename(columns={'Time_taken(min)':'average'},inplace=True)
-        df_aux['standard_deviation'] = df.groupby(['City','Type_of_order'])['Time_taken(min)'].std().reset_index()['Time_taken(min)']
-        stl.dataframe(df_aux, width=500)
-    with stl.container():
-        stl.subheader('Average and standard deviation of the time taken to deliver grouped by city and traffic density')
-        df_aux = df.groupby(['City','Road_traffic_density'])['Time_taken(min)'].mean().reset_index()
-        df_aux.rename(columns={'Time_taken(min)':'average'},inplace=True)
-        df_aux['standard_deviation'] = df.groupby(['City','Road_traffic_density'])['Time_taken(min)'].std().reset_index()['Time_taken(min)']
-        stl.dataframe(df_aux, width=500)
+    col1, col2 = stl.columns(2)
+    with col1:
+        stl.subheader('Ten fastest employees')
+        ten_fastest = df.nsmallest(10,'Time_taken(min)')
+        selected_columns = ['ID','Delivery_person_ID','Time_taken(min)']
+        stl.dataframe(ten_fastest[selected_columns])
+    with col2:
+        stl.subheader('Ten slowest employees')
+        ten_slowest = df.nlargest(10,'Time_taken(min)')
+        stl.dataframe(ten_slowest[selected_columns])
 
 
 
@@ -188,14 +182,6 @@ with tab3:
 
 
 
-
-
-
-
-
-
-
-
-
+    
 
 
