@@ -83,7 +83,8 @@ data_cleaning(df)
 # sidebar
 # =========================================================================================
 
-image_path = 'D:/Estudos/Analise-de-dados/Projetos/logo.png'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+image_path = os.path.join(dir_path,'../logo.png')
 image = Image.open(image_path)
 # stl.dataframe(df)
 stl.sidebar.image(image, width=120)
