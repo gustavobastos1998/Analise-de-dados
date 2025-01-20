@@ -3,7 +3,7 @@ from PIL import Image
 
 stl.set_page_config(page_title='Home', page_icon='🎲')
 
-image_path = '/logo.png'
+image_path = '/mount/src/analise-de-dados/Projetos/logo.png'
 image = Image.open(image_path)
 
 stl.sidebar.image(image, width=120)
