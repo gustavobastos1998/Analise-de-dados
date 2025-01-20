@@ -1,2 +1,4 @@
 haversine
 matplotlib
+streamlit_folium
+folium
