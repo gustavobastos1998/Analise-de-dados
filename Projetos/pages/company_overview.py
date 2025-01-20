@@ -1,4 +1,5 @@
 # libraries
+import os
 import pandas as pd
 import haversine as hs
 import numpy as np
@@ -145,7 +146,9 @@ def median_points_city_traffic_density_map(df):
 # import dataset
 # =========================================================================================
 
-df = pd.read_csv('D:/Estudos/Analise-de-dados/Projetos/datasets/train.csv')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+csv_path = os.path.join(dir_path,'../datasets','train.csv')
+df = pd.read_csv(csv_path)
 # print(df.head())
 df = data_cleaning(df)
 

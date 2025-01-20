@@ -1,3 +1,4 @@
+import os
 import streamlit as stl
 import pandas as pd
 import numpy as np
@@ -72,7 +73,9 @@ def data_cleaning(df):
 # import dataset
 # =========================================================================================
 
-df = pd.read_csv('D:/Estudos/Analise-de-dados/Projetos/datasets/train.csv')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+csv_path = os.path.join(dir_path,'../datasets','train.csv')
+df = pd.read_csv(csv_path)
 data_cleaning(df)
 # print(df.head())
 
