@@ -4,7 +4,7 @@ import numpy as np
 import haversine as hs
 from PIL import Image
 
-stl.set_page_config(page_title='Home', page_icon='🍽', layout='wide')
+stl.set_page_config(page_title='Restaurant Overview', page_icon='🍽', layout='wide')
 # =========================================================================================
 # functions
 # =========================================================================================

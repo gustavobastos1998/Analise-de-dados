@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 
-stl.set_page_config(page_title='Home', page_icon='🚚', layout='wide')
+stl.set_page_config(page_title='Courier Overview', page_icon='🚚', layout='wide')
 # =========================================================================================
 # functions
 # =========================================================================================
