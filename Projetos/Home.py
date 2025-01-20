@@ -1,9 +1,12 @@
+import os
 import streamlit as stl
 from PIL import Image
 
 stl.set_page_config(page_title='Home', page_icon='🎲')
 
-image_path = './logo.png'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+image_path = os.path.join(dir_path,'logo.png')
+#image_path = './logo.png'
 image = Image.open(image_path)
 
 stl.sidebar.image(image, width=120)
