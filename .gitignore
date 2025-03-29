@@ -1,3 +1,5 @@
 .obsidian/
 *.ipynb_checkpoints/
 *.jupyter/
+.data/
+*.db
